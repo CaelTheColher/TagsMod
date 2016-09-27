@@ -42,6 +42,7 @@ public class TagsMod
     public static Configuration config;
     public static ConfigLua servers;
     public static ConfigLua tags;
+    public static ConfigLua particles;
     public static ConfigLua ignored;
     public static boolean useFormatting = false;
     public static boolean overrideChat = false;
@@ -49,6 +50,12 @@ public class TagsMod
     public static boolean overrideClicks = false;
     public static int range;
 
+    public static final HashMap<String, EnumParticleTypes> DEFAULT_PARTICLES = new HashMap<String, EnumParticleTypes>()
+    {
+        {
+            put("natan12_", EnumParticleTypes.REDSTONE);
+        }
+    };
     public static final HashMap<String, String> DEFAULT_TAGS = new HashMap<String, String>()
     {
         {
@@ -88,92 +95,12 @@ public class TagsMod
         servers = new ConfigLua(cfgFile, "config.luatable");
         tags = new ConfigLua(cfgFile, "tags.luatable");
         ignored = new ConfigLua(cfgFile, "ignored.luatable");
+        particles = new ConfigLua(cfgFile, "particles.luatable");
 
         saveConfigs();
     }
 
-    public static MovingObjectPosition getMouseOverExtended(float dist)
-    {
-        Minecraft mc = FMLClientHandler.instance().getClient();
-        Entity theRenderViewEntity = mc.getRenderViewEntity();
-        AxisAlignedBB theViewBoundingBox = new AxisAlignedBB(
-                theRenderViewEntity.posX-0.5D,
-                theRenderViewEntity.posY-0.0D,
-                theRenderViewEntity.posZ-0.5D,
-                theRenderViewEntity.posX+0.5D,
-                theRenderViewEntity.posY+1.5D,
-                theRenderViewEntity.posZ+0.5D
-        );
-        MovingObjectPosition returnMOP = null;
-        if (mc.theWorld != null)
-        {
-            double var2 = dist;
-            returnMOP = theRenderViewEntity.rayTrace(var2, 1F);
-            double calcdist = var2;
-            Vec3 pos = theRenderViewEntity.getPositionEyes(0);
-            var2 = calcdist;
-            if (returnMOP != null)
-            {
-                calcdist = returnMOP.hitVec.distanceTo(pos);
-            }
 
-            Vec3 lookvec = theRenderViewEntity.getLook(0);
-            Vec3 var8 = pos.addVector(lookvec.xCoord * var2,
-                    lookvec.yCoord * var2,
-                    lookvec.zCoord * var2);
-            Entity pointedEntity = null;
-            float var9 = 1.0F;
-            @SuppressWarnings("unchecked")
-            List<Entity> list = mc.theWorld.getEntitiesWithinAABBExcludingEntity(
-                    theRenderViewEntity,
-                    theViewBoundingBox.addCoord(
-                            lookvec.xCoord * var2,
-                            lookvec.yCoord * var2,
-                            lookvec.zCoord * var2).expand(var9, var9, var9));
-            double d = calcdist;
-
-            for (Entity entity : list)
-            {
-                if (entity.canBeCollidedWith())
-                {
-                    float bordersize = entity.getCollisionBorderSize();
-                    AxisAlignedBB aabb = new AxisAlignedBB(
-                            entity.posX-entity.width/2,
-                            entity.posY,
-                            entity.posZ-entity.width/2,
-                            entity.posX+entity.width/2,
-                            entity.posY+entity.height,
-                            entity.posZ+entity.width/2);
-                    aabb.expand(bordersize, bordersize, bordersize);
-                    MovingObjectPosition mop0 = aabb.calculateIntercept(pos, var8);
-
-                    if (aabb.isVecInside(pos))
-                    {
-                        if (0.0D < d || d == 0.0D)
-                        {
-                            pointedEntity = entity;
-                            d = 0.0D;
-                        }
-                    } else if (mop0 != null)
-                    {
-                        double d1 = pos.distanceTo(mop0.hitVec);
-
-                        if (d1 < d || d == 0.0D)
-                        {
-                            pointedEntity = entity;
-                            d = d1;
-                        }
-                    }
-                }
-            }
-
-            if (pointedEntity != null && (d < calcdist || returnMOP == null))
-            {
-                returnMOP = new MovingObjectPosition(pointedEntity);
-            }
-        }
-        return returnMOP;
-    }
 
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
@@ -534,5 +461,88 @@ public class TagsMod
             sb.append("}");
             return sb.toString();
         }
+    }
+
+    public static MovingObjectPosition getMouseOverExtended(float dist)
+    {
+        Minecraft mc = FMLClientHandler.instance().getClient();
+        Entity theRenderViewEntity = mc.getRenderViewEntity();
+        AxisAlignedBB theViewBoundingBox = new AxisAlignedBB(
+                theRenderViewEntity.posX-0.5D,
+                theRenderViewEntity.posY-0.0D,
+                theRenderViewEntity.posZ-0.5D,
+                theRenderViewEntity.posX+0.5D,
+                theRenderViewEntity.posY+1.5D,
+                theRenderViewEntity.posZ+0.5D
+        );
+        MovingObjectPosition returnMOP = null;
+        if (mc.theWorld != null)
+        {
+            double var2 = dist;
+            returnMOP = theRenderViewEntity.rayTrace(var2, 1F);
+            double calcdist = var2;
+            Vec3 pos = theRenderViewEntity.getPositionEyes(0);
+            var2 = calcdist;
+            if (returnMOP != null)
+            {
+                calcdist = returnMOP.hitVec.distanceTo(pos);
+            }
+
+            Vec3 lookvec = theRenderViewEntity.getLook(0);
+            Vec3 var8 = pos.addVector(lookvec.xCoord * var2,
+                    lookvec.yCoord * var2,
+                    lookvec.zCoord * var2);
+            Entity pointedEntity = null;
+            float var9 = 1.0F;
+            @SuppressWarnings("unchecked")
+            List<Entity> list = mc.theWorld.getEntitiesWithinAABBExcludingEntity(
+                    theRenderViewEntity,
+                    theViewBoundingBox.addCoord(
+                            lookvec.xCoord * var2,
+                            lookvec.yCoord * var2,
+                            lookvec.zCoord * var2).expand(var9, var9, var9));
+            double d = calcdist;
+
+            for (Entity entity : list)
+            {
+                if (entity.canBeCollidedWith())
+                {
+                    float bordersize = entity.getCollisionBorderSize();
+                    AxisAlignedBB aabb = new AxisAlignedBB(
+                            entity.posX-entity.width/2,
+                            entity.posY,
+                            entity.posZ-entity.width/2,
+                            entity.posX+entity.width/2,
+                            entity.posY+entity.height,
+                            entity.posZ+entity.width/2);
+                    aabb.expand(bordersize, bordersize, bordersize);
+                    MovingObjectPosition mop0 = aabb.calculateIntercept(pos, var8);
+
+                    if (aabb.isVecInside(pos))
+                    {
+                        if (0.0D < d || d == 0.0D)
+                        {
+                            pointedEntity = entity;
+                            d = 0.0D;
+                        }
+                    } else if (mop0 != null)
+                    {
+                        double d1 = pos.distanceTo(mop0.hitVec);
+
+                        if (d1 < d || d == 0.0D)
+                        {
+                            pointedEntity = entity;
+                            d = d1;
+                        }
+                    }
+                }
+            }
+
+            if (pointedEntity != null && (d < calcdist || returnMOP == null))
+            {
+                returnMOP = new MovingObjectPosition(pointedEntity);
+            }
+        }
+        return returnMOP;
     }
 }
