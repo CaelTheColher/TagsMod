@@ -41,7 +41,7 @@ public class ConfigGUI implements IModGuiFactory
         {
             super(parent,
                     new ConfigElement(TagsMod.config.getCategory(Configuration.CATEGORY_GENERAL)).getChildElements(),
-                    "tagsmod", false, false, GuiConfig.getAbridgedConfigPath(TagsMod.config.toString()));
+                    TagsMod.MODID, false, false, GuiConfig.getAbridgedConfigPath(TagsMod.config.toString()));
         }
     }
 }

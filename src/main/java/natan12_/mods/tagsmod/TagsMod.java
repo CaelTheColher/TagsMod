@@ -8,6 +8,7 @@ import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
+import net.minecraft.world.World;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -23,6 +24,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -34,10 +36,17 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Mod(modid = "tagsmods", name = "Tags Mod", version = "1.8", guiFactory = "natan12_.mods.tagsmod.ConfigGUI")
+import static natan12_.mods.tagsmod.TagsMod.*;
+
+@Mod(modid = MODID, name = MODNAME, version = MODVERSION, guiFactory = GUI_FACTORY)
 public class TagsMod
 {
-    @Mod.Instance("tagsmod")
+    public static final String MODVERSION = "1.8";
+    public static final String MODNAME = "Tags Mod";
+    public static final String MODID = "tagsmod";
+    public static final String GUI_FACTORY = "natan12_.mods.tagsmod.ConfigGUI";
+
+    @Mod.Instance(MODID)
     public static TagsMod instance;
     public static Configuration config;
     public static ConfigLua servers;
@@ -48,12 +57,17 @@ public class TagsMod
     public static boolean overrideChat = false;
     public static boolean showPlayerInfo = false;
     public static boolean overrideClicks = false;
+    public static boolean allowParticles = false;
+    public static boolean increaseParticles = false;
+    public static boolean increaseParticles2 = false;
     public static int range;
 
     public static final HashMap<String, EnumParticleTypes> DEFAULT_PARTICLES = new HashMap<String, EnumParticleTypes>()
     {
         {
             put("natan12_", EnumParticleTypes.REDSTONE);
+            put("natan12_IntelliJ", EnumParticleTypes.REDSTONE);
+            put("IlyBr", EnumParticleTypes.SMOKE_NORMAL);
         }
     };
     public static final HashMap<String, String> DEFAULT_TAGS = new HashMap<String, String>()
@@ -100,26 +114,11 @@ public class TagsMod
         saveConfigs();
     }
 
-
-
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
-    public void renderOverlay(RenderGameOverlayEvent event)
+    public void renderTick(TickEvent.RenderTickEvent event)
     {
-        if(!showPlayerInfo) return;
-        EntityLooked entity = getPlayerLook();
-        if(event.type != RenderGameOverlayEvent.ElementType.TEXT) return;
-        if(!entity.isPlayer) return;
-        if(entity.player == null) return;
-        String name = entity.name;
-        EntityPlayer player = entity.player;
-        ItemStack helditem = player.getHeldItem();
-        String item;
-        if(helditem == null) item = "None";
-        else item = StatCollector.translateToLocal(helditem.getUnlocalizedName());
-        Minecraft.getMinecraft().fontRendererObj.drawString("Name: " + name + ", Health: " + player.getHealth() + "/" + player.getMaxHealth() +
-                ", Held Item: " + item,
-                10, 3, 0xFFFFFF);
+        renderParticles();
     }
 
     @SideOnly(Side.CLIENT)
@@ -273,6 +272,66 @@ public class TagsMod
         Minecraft.getMinecraft().thePlayer.addChatMessage(message);
     }
 
+    @SideOnly(Side.CLIENT)
+    public void renderParticles()
+    {
+        if(!allowParticles) return;
+        if(Minecraft.getMinecraft().theWorld == null) return;
+        for(Object o : Minecraft.getMinecraft().theWorld.playerEntities)
+        {
+            if(!(o instanceof  EntityPlayer)) continue;
+            EntityPlayer player = (EntityPlayer) o;
+            renderParticles(player.getName());
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void renderParticles(String playername)
+    {
+        if(!allowParticles) return;
+        if(!DEFAULT_PARTICLES.containsKey(playername) && particles.get(playername, null) == null) return;
+        World world = Minecraft.getMinecraft().theWorld;
+        EntityPlayer player = world.getPlayerEntityByName(playername);
+        if(player == null) return;
+        try
+        {
+            EnumParticleTypes type = DEFAULT_PARTICLES.get(playername);
+            if(type == null) type = EnumParticleTypes.valueOf(particles.get(playername, null)[0]);
+            float playerYaw = 0.0F;
+            if (player.rotationYaw < 180){
+                playerYaw = player.rotationYaw;
+            } else {
+                playerYaw = player.rotationYaw - 360;
+            }
+            playerYaw = playerYaw + 90;
+            double x = player.posX - Math.cos(Math.toRadians(playerYaw));
+            double z = player.posZ - Math.sin(Math.toRadians(playerYaw));
+
+            world.spawnParticle(type, x, player.posY + 0.250D, z, 0, 0, 0);
+            world.spawnParticle(type, x, player.posY + 0.750D, z, 0, 0, 0);
+            world.spawnParticle(type, x, player.posY + 1.250D, z, 0, 0, 0);
+            world.spawnParticle(type, x, player.posY + 1.750D, z, 0, 0, 0);
+            if(increaseParticles)
+            {
+                world.spawnParticle(type, x, player.posY + 0.000D, z, 0, 0, 0);
+                world.spawnParticle(type, x, player.posY + 0.500D, z, 0, 0, 0);
+                world.spawnParticle(type, x, player.posY + 1.000D, z, 0, 0, 0);
+                world.spawnParticle(type, x, player.posY + 1.500D, z, 0, 0, 0);
+            }
+            if(increaseParticles && increaseParticles2)
+            {
+                world.spawnParticle(type, x, player.posY + 0.125D, z, 0, 0, 0);
+                world.spawnParticle(type, x, player.posY + 0.375D, z, 0, 0, 0);
+                world.spawnParticle(type, x, player.posY + 0.625D, z, 0, 0, 0);
+                world.spawnParticle(type, x, player.posY + 0.875D, z, 0, 0, 0);
+                world.spawnParticle(type, x, player.posY + 1.125D, z, 0, 0, 0);
+                world.spawnParticle(type, x, player.posY + 1.375D, z, 0, 0, 0);
+                world.spawnParticle(type, x, player.posY + 1.625D, z, 0, 0, 0);
+            }
+        }
+        catch(Exception e) {}
+    }
+
     public static String parseTag(String tag)
     {
         char[] b = tag.toCharArray();
@@ -285,22 +344,6 @@ public class TagsMod
             }
         }
         return new String(b);
-    }
-
-    public static EntityLooked getPlayerLook()
-    {
-        if(Minecraft.getMinecraft().objectMouseOver != null)
-        {
-            MovingObjectPosition object = getMouseOverExtended(range);
-            if(object == null) return new EntityLooked();
-            if(object.entityHit != null)
-            {
-                Entity entity = object.entityHit;
-                return new EntityLooked(entity.getName(), entity.getCustomNameTag(), entity.getDisplayName().getUnformattedText(), entity instanceof EntityPlayer, entity instanceof  EntityPlayer ? (EntityPlayer) entity : null);
-            }
-        }
-
-        return new EntityLooked();
     }
 
     @SideOnly(Side.CLIENT)
@@ -323,6 +366,7 @@ public class TagsMod
         handler.registerCommand(new IgnoreCommand());
         handler.registerCommand(new UnignoreCommand());
         handler.registerCommand(new ReloadCommand());
+        handler.registerCommand(new ParticlesCommand());
     }
 
     @SideOnly(Side.CLIENT)
@@ -361,6 +405,9 @@ public class TagsMod
         showPlayerInfo = config.getBoolean("show_player_info", Configuration.CATEGORY_GENERAL, false, "Show player info when you look at them");
         overrideClicks = config.getBoolean("override_chat_clicks", Configuration.CATEGORY_GENERAL, false, "Send /tell by clicking player message in chat\n(Off makes only the name be clickable)");
         range = config.getInt("player_info_range", Configuration.CATEGORY_GENERAL, defaultRange, 0, 256, "Range where player info can be seen");
+        allowParticles = config.getBoolean("allow_particles", Configuration.CATEGORY_GENERAL, false, "Allow player trails (Players must be whitelisted in-game, affects performance");
+        increaseParticles = config.getBoolean("increase_particles", Configuration.CATEGORY_GENERAL, false, "Increase particle count in trails");
+        increaseParticles2 = config.getBoolean("increase_particles_2", Configuration.CATEGORY_GENERAL, false, "Further increase particle count, on default settings spawns 1600 particles per player (Only affects the game if increase_particles is true)");
 
         if(config.hasChanged()) config.save();
     }
@@ -415,134 +462,5 @@ public class TagsMod
                 th.printStackTrace();
             }
         }
-    }
-
-    public static class EntityLooked
-    {
-        public final String name;
-        public final String customNametag;
-        public final String displayName;
-        public final boolean isPlayer;
-        public final EntityPlayer player;
-
-        public EntityLooked(String name, String customNameTag, String displayName, boolean isPlayer, EntityPlayer player)
-        {
-            this.name = name;
-            this.customNametag = customNameTag;
-            this.displayName = displayName;
-            this.isPlayer = isPlayer;
-            this.player = player;
-        }
-
-        public EntityLooked()
-        {
-            this.name = null;
-            this.customNametag = null;
-            this.displayName = null;
-            this.isPlayer = false;
-            this.player = null;
-        }
-
-        @Override
-        public String toString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.append("{name = ");
-            sb.append(name);
-            sb.append(", ");
-            sb.append("customNametag = ");
-            sb.append(customNametag);
-            sb.append(", ");
-            sb.append("displayName = ");
-            sb.append(displayName);
-            sb.append(", ");
-            sb.append("isPlayer = ");
-            sb.append(isPlayer);
-            sb.append("}");
-            return sb.toString();
-        }
-    }
-
-    public static MovingObjectPosition getMouseOverExtended(float dist)
-    {
-        Minecraft mc = FMLClientHandler.instance().getClient();
-        Entity theRenderViewEntity = mc.getRenderViewEntity();
-        AxisAlignedBB theViewBoundingBox = new AxisAlignedBB(
-                theRenderViewEntity.posX-0.5D,
-                theRenderViewEntity.posY-0.0D,
-                theRenderViewEntity.posZ-0.5D,
-                theRenderViewEntity.posX+0.5D,
-                theRenderViewEntity.posY+1.5D,
-                theRenderViewEntity.posZ+0.5D
-        );
-        MovingObjectPosition returnMOP = null;
-        if (mc.theWorld != null)
-        {
-            double var2 = dist;
-            returnMOP = theRenderViewEntity.rayTrace(var2, 1F);
-            double calcdist = var2;
-            Vec3 pos = theRenderViewEntity.getPositionEyes(0);
-            var2 = calcdist;
-            if (returnMOP != null)
-            {
-                calcdist = returnMOP.hitVec.distanceTo(pos);
-            }
-
-            Vec3 lookvec = theRenderViewEntity.getLook(0);
-            Vec3 var8 = pos.addVector(lookvec.xCoord * var2,
-                    lookvec.yCoord * var2,
-                    lookvec.zCoord * var2);
-            Entity pointedEntity = null;
-            float var9 = 1.0F;
-            @SuppressWarnings("unchecked")
-            List<Entity> list = mc.theWorld.getEntitiesWithinAABBExcludingEntity(
-                    theRenderViewEntity,
-                    theViewBoundingBox.addCoord(
-                            lookvec.xCoord * var2,
-                            lookvec.yCoord * var2,
-                            lookvec.zCoord * var2).expand(var9, var9, var9));
-            double d = calcdist;
-
-            for (Entity entity : list)
-            {
-                if (entity.canBeCollidedWith())
-                {
-                    float bordersize = entity.getCollisionBorderSize();
-                    AxisAlignedBB aabb = new AxisAlignedBB(
-                            entity.posX-entity.width/2,
-                            entity.posY,
-                            entity.posZ-entity.width/2,
-                            entity.posX+entity.width/2,
-                            entity.posY+entity.height,
-                            entity.posZ+entity.width/2);
-                    aabb.expand(bordersize, bordersize, bordersize);
-                    MovingObjectPosition mop0 = aabb.calculateIntercept(pos, var8);
-
-                    if (aabb.isVecInside(pos))
-                    {
-                        if (0.0D < d || d == 0.0D)
-                        {
-                            pointedEntity = entity;
-                            d = 0.0D;
-                        }
-                    } else if (mop0 != null)
-                    {
-                        double d1 = pos.distanceTo(mop0.hitVec);
-
-                        if (d1 < d || d == 0.0D)
-                        {
-                            pointedEntity = entity;
-                            d = d1;
-                        }
-                    }
-                }
-            }
-
-            if (pointedEntity != null && (d < calcdist || returnMOP == null))
-            {
-                returnMOP = new MovingObjectPosition(pointedEntity);
-            }
-        }
-        return returnMOP;
     }
 }
