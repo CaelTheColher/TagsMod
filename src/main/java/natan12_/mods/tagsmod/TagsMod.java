@@ -41,7 +41,7 @@ import static natan12_.mods.tagsmod.TagsMod.*;
 @Mod(modid = MODID, name = MODNAME, version = MODVERSION, guiFactory = GUI_FACTORY)
 public class TagsMod
 {
-    public static final String MODVERSION = "1.8";
+    public static final String MODVERSION = "2.0";
     public static final String MODNAME = "Tags Mod";
     public static final String MODID = "tagsmod";
     public static final String GUI_FACTORY = "natan12_.mods.tagsmod.ConfigGUI";
@@ -55,12 +55,10 @@ public class TagsMod
     public static ConfigLua ignored;
     public static boolean useFormatting = false;
     public static boolean overrideChat = false;
-    public static boolean showPlayerInfo = false;
     public static boolean overrideClicks = false;
     public static boolean allowParticles = false;
     public static boolean increaseParticles = false;
     public static boolean increaseParticles2 = false;
-    public static int range;
 
     public static final HashMap<String, EnumParticleTypes> DEFAULT_PARTICLES = new HashMap<String, EnumParticleTypes>()
     {
@@ -402,9 +400,7 @@ public class TagsMod
     {
         overrideChat = config.getBoolean("override_chat", Configuration.CATEGORY_GENERAL, false, "Whether or not to override chat messages\n(Disable if buggy)");
         useFormatting = config.getBoolean("use_formatting", Configuration.CATEGORY_GENERAL, false, "Use formatting codes in messages (use & instead of §)");
-        showPlayerInfo = config.getBoolean("show_player_info", Configuration.CATEGORY_GENERAL, false, "Show player info when you look at them");
         overrideClicks = config.getBoolean("override_chat_clicks", Configuration.CATEGORY_GENERAL, false, "Send /tell by clicking player message in chat\n(Off makes only the name be clickable)");
-        range = config.getInt("player_info_range", Configuration.CATEGORY_GENERAL, defaultRange, 0, 256, "Range where player info can be seen");
         allowParticles = config.getBoolean("allow_particles", Configuration.CATEGORY_GENERAL, false, "Allow player trails (Players must be whitelisted in-game, affects performance");
         increaseParticles = config.getBoolean("increase_particles", Configuration.CATEGORY_GENERAL, false, "Increase particle count in trails");
         increaseParticles2 = config.getBoolean("increase_particles_2", Configuration.CATEGORY_GENERAL, false, "Further increase particle count, on default settings spawns 1600 particles per player (Only affects the game if increase_particles is true)");
