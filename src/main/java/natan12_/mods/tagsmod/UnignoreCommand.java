@@ -15,12 +15,7 @@ import java.util.List;
  */
 public class UnignoreCommand implements ICommand
 {
-    private final List aliases = new ArrayList();
-
-    public UnignoreCommand()
-    {
-        aliases.add("ac_unignore");
-    }
+    final List<String> aliases = new ArrayList<String>(){{add("ac_unignore");}};
 
     @Override
     public String getName() {

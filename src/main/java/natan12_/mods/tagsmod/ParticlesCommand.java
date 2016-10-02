@@ -27,7 +27,7 @@ public class ParticlesCommand implements ICommand
         }
     };
 
-    final List aliases = new ArrayList<>();
+    final List<String> aliases = new ArrayList<>();
 
     public ParticlesCommand()
     {
@@ -127,7 +127,7 @@ public class ParticlesCommand implements ICommand
         if(args == null) return null;
         if(args.length == 1)
         {
-            return new ArrayList()
+            return new ArrayList<String>()
             {
                 {
                     if("set".startsWith(args[0]))add("set");
@@ -137,13 +137,22 @@ public class ParticlesCommand implements ICommand
         }
         if(args.length == 2)
         {
-            List ret = new ArrayList();
+            List<String> ret = new ArrayList<>();
+            String subcommand = args[0];
+            String typed = args[1];
+            if(subcommand.equals("remove"))
+            {
+                for(String s : TagsMod.particles.getKeys())
+                {
+                    if(s.toLowerCase().startsWith(typed.toLowerCase())) ret.add(s);
+                }
+                return ret;
+            }
             for(Object o : Minecraft.getMinecraft().theWorld.playerEntities)
             {
                 if(!(o instanceof EntityPlayer)) continue;
                 EntityPlayer player = (EntityPlayer) o;
                 String playername = player.getName();
-                String typed = args[1];
                 if(typed.length() > 0 && !playername.substring(0, typed.length()).equalsIgnoreCase(typed)) continue;
                 ret.add(playername);
             }

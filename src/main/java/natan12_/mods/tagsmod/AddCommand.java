@@ -14,12 +14,7 @@ import java.util.List;
 
 public class AddCommand implements ICommand
 {
-    final ArrayList aliases = new ArrayList();
-
-    public AddCommand()
-    {
-        aliases.add("ac_add");
-    }
+    final List<String> aliases = new ArrayList<String>(){{add("ac_add");}};
 
     @Override
     public String getName()
@@ -92,7 +87,7 @@ public class AddCommand implements ICommand
     public List addTabCompletionOptions(ICommandSender iCommandSender, String[] strings, BlockPos blockPos)
     {
         if(strings.length > 1) return null;
-        ArrayList list = new ArrayList();
+        ArrayList<String> list = new ArrayList<>();
         list.add(Minecraft.getMinecraft().getCurrentServerData().serverIP);
         return list;
     }

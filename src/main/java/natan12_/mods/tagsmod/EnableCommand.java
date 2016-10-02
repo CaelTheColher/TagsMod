@@ -10,21 +10,18 @@ import net.minecraft.util.BlockPos;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Natan on 25/09/2016.
- */
-public class ReloadCommand implements ICommand
+public class EnableCommand implements ICommand
 {
-    final List<String> aliases = new ArrayList<String>(){{add("ac_reload");}};
+    final List<String> aliases = new ArrayList<String>(){{add("ac_disable");}};
 
     @Override
     public String getName() {
-        return "autocommand_reload";
+        return "autocommand_disable";
     }
 
     @Override
     public String getCommandUsage(ICommandSender iCommandSender) {
-        return "/ac_reload";
+        return "/ac_disable";
     }
 
     @Override
@@ -33,21 +30,23 @@ public class ReloadCommand implements ICommand
     }
 
     @Override
-    public void execute(ICommandSender sender, String[] args) throws CommandException
+    public void execute(ICommandSender iCommandSender, String[] strings) throws CommandException
     {
+        TagsMod.saveConfigs();
+
         for(Object o : Minecraft.getMinecraft().theWorld.playerEntities)
         {
-            if(o == null || !(o instanceof EntityPlayer)) continue;
+            if(o == null) return;
             ((EntityPlayer) o).refreshDisplayName();
         }
     }
 
     @Override
-    public boolean canCommandSenderUse(ICommandSender sender) {
+    public boolean canCommandSenderUse(ICommandSender iCommandSender) {
         boolean use;
         try
         {
-            use = sender.getEntityWorld().isRemote;
+            use = iCommandSender.getEntityWorld().isRemote;
         }catch(Exception e){use = false;}
         return use;
     }

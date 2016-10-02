@@ -24,10 +24,7 @@ public class ConfigGUI implements IModGuiFactory
     }
 
     @Override
-    public void initialize(Minecraft minecraft)
-    {
-
-    }
+    public void initialize(Minecraft minecraft) {}
 
     @Override
     public Set<RuntimeOptionCategoryElement> runtimeGuiCategories()

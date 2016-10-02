@@ -17,12 +17,7 @@ import java.util.List;
  */
 public class IgnoreCommand implements ICommand
 {
-    private final List aliases = new ArrayList();
-
-    public IgnoreCommand()
-    {
-        aliases.add("ac_ignore");
-    }
+    final List<String> aliases = new ArrayList<String>(){{add("ac_ignore");}};
 
     @Override
     public String getName() {
@@ -78,14 +73,14 @@ public class IgnoreCommand implements ICommand
         if(args == null) return null;
         if(args.length == 1)
         {
-            List ret = new ArrayList();
+            List<String> ret = new ArrayList<>();
+            String typed = args[0];
             for(Object o : Minecraft.getMinecraft().theWorld.playerEntities)
             {
                 if(!(o instanceof EntityPlayer)) continue;
                 EntityPlayer player = (EntityPlayer) o;
                 String playername = player.getName();
-                String typed = args[0];
-                if(typed.length() > 0 && !playername.substring(0, typed.length()).equalsIgnoreCase(typed)) continue;
+                if(!playername.toLowerCase().startsWith(typed)) continue;
                 ret.add(playername);
             }
             return ret;

@@ -20,6 +20,7 @@ public class ConfigLua
 
     public ConfigLua(File configfile, String filename)
     {
+        if(configfile == null || filename == null) throw new RuntimeException(new IllegalArgumentException("ConfigLua: either configfile or filename are null"));
         config = new File(configfile.getParentFile(), filename);
         if(!config.exists())
         {

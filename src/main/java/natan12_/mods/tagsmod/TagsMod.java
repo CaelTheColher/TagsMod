@@ -38,10 +38,11 @@ import java.util.regex.Pattern;
 
 import static natan12_.mods.tagsmod.TagsMod.*;
 
-@Mod(modid = MODID, name = MODNAME, version = MODVERSION, guiFactory = GUI_FACTORY)
+@Mod(modid = MODID, name = MODNAME, version = MODVERSION, guiFactory = GUI_FACTORY,
+        clientSideOnly = true, canBeDeactivated = true)
 public class TagsMod
 {
-    public static final String MODVERSION = "2.0";
+    public static final String MODVERSION = "2.1";
     public static final String MODNAME = "Tags Mod";
     public static final String MODID = "tagsmod";
     public static final String GUI_FACTORY = "natan12_.mods.tagsmod.ConfigGUI";
@@ -94,8 +95,6 @@ public class TagsMod
     public static int currentColor = random.nextInt(roneyBrubs.length);
     public static int msgs = 0;
 
-    public static final int defaultRange = 32;
-
     @SideOnly(Side.CLIENT)
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -123,6 +122,11 @@ public class TagsMod
     @SubscribeEvent
     public void onLogin(PlayerEvent.NameFormat event)
     {
+        if(!overrideChat)
+        {
+            event.displayname = event.username;
+            return;
+        }
         System.out.println(event.username);
         if(event.username.equals("roneyq123") || event.username.equals("BrubsCraft"))
         {
@@ -365,6 +369,8 @@ public class TagsMod
         handler.registerCommand(new UnignoreCommand());
         handler.registerCommand(new ReloadCommand());
         handler.registerCommand(new ParticlesCommand());
+        handler.registerCommand(new DisableCommand());
+        handler.registerCommand(new EnableCommand());
     }
 
     @SideOnly(Side.CLIENT)
@@ -396,7 +402,7 @@ public class TagsMod
             saveConfigs();
     }
 
-    public void saveConfigs()
+    public static void saveConfigs()
     {
         overrideChat = config.getBoolean("override_chat", Configuration.CATEGORY_GENERAL, false, "Whether or not to override chat messages\n(Disable if buggy)");
         useFormatting = config.getBoolean("use_formatting", Configuration.CATEGORY_GENERAL, false, "Use formatting codes in messages (use & instead of §)");

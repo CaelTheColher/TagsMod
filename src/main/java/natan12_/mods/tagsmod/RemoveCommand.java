@@ -14,12 +14,7 @@ import java.util.List;
 
 public class RemoveCommand implements ICommand
 {
-    final ArrayList aliases = new ArrayList();
-
-    public RemoveCommand()
-    {
-        aliases.add("ac_remove");
-    }
+    final List<String> aliases = new ArrayList<String>(){{add("ac_remove");}};
 
     @Override
     public String getName()
@@ -86,11 +81,21 @@ public class RemoveCommand implements ICommand
     }
 
     @Override
-    public List addTabCompletionOptions(ICommandSender iCommandSender, String[] strings, BlockPos blockPos)
+    public List addTabCompletionOptions(ICommandSender iCommandSender, String[] args, BlockPos blockPos)
     {
-        if(strings.length > 1) return null;
-        ArrayList list = new ArrayList();
-        list.add(Minecraft.getMinecraft().getCurrentServerData().serverIP);
+        if(args.length > 1) return null;
+        ArrayList<String> list = new ArrayList<>();
+        if(args.length == 1)
+        {
+            String typed = args[0].toLowerCase();
+            for(String s : TagsMod.servers.getKeys())
+            {
+                if(s.toLowerCase().startsWith(typed)) list.add(s);
+            }
+        }
+        else
+            if(Minecraft.getMinecraft().getCurrentServerData() != null && Minecraft.getMinecraft().getCurrentServerData().serverIP != null)
+                list.add(Minecraft.getMinecraft().getCurrentServerData().serverIP);
         return list;
     }
 

@@ -14,12 +14,7 @@ import java.util.List;
 
 public class TagCommand implements ICommand
 {
-    private final List aliases = new ArrayList()
-    {
-        {
-            add("ac_tag");
-        }
-    };
+    private final List<String> aliases = new ArrayList<String>(){{add("ac_tag");}};
 
     @Override
     public String getName() {
@@ -128,23 +123,33 @@ public class TagCommand implements ICommand
         if(args == null) return null;
         if(args.length == 1)
         {
-            return new ArrayList()
+            String typed = args[0].toLowerCase();
+            return new ArrayList<String>()
             {
                 {
-                    add("set");
-                    add("remove");
+                    if("set".startsWith(typed)) add("set");
+                    if("remove".startsWith(typed)) add("remove");
                 }
             };
         }
         if(args.length == 2)
         {
-            List ret = new ArrayList();
+            List<String> ret = new ArrayList<>();
+            String subcommand = args[0];
+            String typed = args[1];
+            if(subcommand.equals("remove"))
+            {
+                for(String s : TagsMod.tags.getKeys())
+                {
+                    if(s.toLowerCase().startsWith(typed.toLowerCase())) ret.add(s);
+                }
+                return ret;
+            }
             for(Object o : Minecraft.getMinecraft().theWorld.playerEntities)
             {
                 if(!(o instanceof EntityPlayer)) continue;
                 EntityPlayer player = (EntityPlayer) o;
                 String playername = player.getName();
-                String typed = args[1];
                 if(typed.length() > 0 && !playername.substring(0, typed.length()).equalsIgnoreCase(typed)) continue;
                 ret.add(playername);
             }
