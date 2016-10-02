@@ -12,16 +12,16 @@ import java.util.List;
 
 public class EnableCommand implements ICommand
 {
-    final List<String> aliases = new ArrayList<String>(){{add("ac_disable");}};
+    final List<String> aliases = new ArrayList<String>(){{add("ac_enable");}};
 
     @Override
     public String getName() {
-        return "autocommand_disable";
+        return "autocommand_enable";
     }
 
     @Override
     public String getCommandUsage(ICommandSender iCommandSender) {
-        return "/ac_disable";
+        return "/ac_enable";
     }
 
     @Override

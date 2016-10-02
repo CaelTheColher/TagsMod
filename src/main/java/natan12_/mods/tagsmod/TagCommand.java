@@ -123,7 +123,7 @@ public class TagCommand implements ICommand
         if(args == null) return null;
         if(args.length == 1)
         {
-            String typed = args[0].toLowerCase();
+            final String typed = args[0].toLowerCase();
             return new ArrayList<String>()
             {
                 {

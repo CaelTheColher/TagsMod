@@ -71,7 +71,7 @@ public class UnignoreCommand implements ICommand
         if(args == null) return null;
         if(args.length == 1)
         {
-            List ret = new ArrayList();
+            List<String> ret = new ArrayList<>();
             for(String s : TagsMod.ignored.getKeys())
             {
                 String typed = args[0];

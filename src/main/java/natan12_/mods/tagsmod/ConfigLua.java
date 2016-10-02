@@ -1,7 +1,7 @@
 package natan12_.mods.tagsmod;
 
-import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
 import java.io.File;
