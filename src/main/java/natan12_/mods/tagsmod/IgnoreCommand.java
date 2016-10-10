@@ -12,12 +12,9 @@ import net.minecraft.util.EnumChatFormatting;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Natan on 23/09/2016.
- */
 public class IgnoreCommand implements ICommand
 {
-    final List<String> aliases = new ArrayList<String>(){{add("ac_ignore");}};
+    private static final List<String> aliases = new ArrayList<String>(){{add("ac_ignore");}};
 
     @Override
     public String getName() {
@@ -74,7 +71,7 @@ public class IgnoreCommand implements ICommand
         if(args.length == 1)
         {
             List<String> ret = new ArrayList<>();
-            String typed = args[0];
+            String typed = args[0].toLowerCase();
             for(Object o : Minecraft.getMinecraft().theWorld.playerEntities)
             {
                 if(!(o instanceof EntityPlayer)) continue;

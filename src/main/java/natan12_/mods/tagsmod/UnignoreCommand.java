@@ -10,12 +10,9 @@ import net.minecraft.util.EnumChatFormatting;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Natan on 23/09/2016.
- */
 public class UnignoreCommand implements ICommand
 {
-    final List<String> aliases = new ArrayList<String>(){{add("ac_unignore");}};
+    private static final List<String> aliases = new ArrayList<String>(){{add("ac_unignore");}};
 
     @Override
     public String getName() {

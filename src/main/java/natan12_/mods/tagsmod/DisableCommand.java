@@ -12,7 +12,7 @@ import java.util.List;
 
 public class DisableCommand implements ICommand
 {
-    final List<String> aliases = new ArrayList<String>(){{add("ac_disable");}};
+    private static final List<String> aliases = new ArrayList<String>(){{add("ac_disable");}};
 
     @Override
     public String getName() {

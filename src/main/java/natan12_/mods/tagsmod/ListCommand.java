@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ListCommand implements ICommand
 {
-    final List<String> aliases = new ArrayList<String>(){{add("ac_list");}};
+    private static final List<String> aliases = new ArrayList<String>(){{add("ac_list");}};
 
     @Override
     public String getName()

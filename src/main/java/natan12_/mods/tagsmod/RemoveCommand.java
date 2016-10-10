@@ -14,7 +14,7 @@ import java.util.List;
 
 public class RemoveCommand implements ICommand
 {
-    final List<String> aliases = new ArrayList<String>(){{add("ac_remove");}};
+    private static final List<String> aliases = new ArrayList<String>(){{add("ac_remove");}};
 
     @Override
     public String getName()

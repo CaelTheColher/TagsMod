@@ -10,9 +10,6 @@ import net.minecraft.util.BlockPos;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Natan on 25/09/2016.
- */
 public class ReloadCommand implements ICommand
 {
     final List<String> aliases = new ArrayList<String>(){{add("ac_reload");}};

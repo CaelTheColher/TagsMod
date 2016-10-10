@@ -14,7 +14,7 @@ import java.util.List;
 
 public class TagCommand implements ICommand
 {
-    private final List<String> aliases = new ArrayList<String>(){{add("ac_tag");}};
+    private static final List<String> aliases = new ArrayList<String>(){{add("ac_tag");}};
 
     @Override
     public String getName() {

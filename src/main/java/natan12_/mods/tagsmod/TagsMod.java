@@ -5,10 +5,15 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
-import net.minecraft.util.*;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -28,6 +33,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +55,8 @@ public class TagsMod
     public static ConfigLua tags;
     public static ConfigLua particles;
     public static ConfigLua ignored;
+    public static CopyOnWriteArrayList<String> notIgnoredPlayers = new CopyOnWriteArrayList<>();
+    public static long timeLeft = 0;
     public static boolean useFormatting = false;
     public static boolean overrideChat = false;
     public static boolean overrideClicks = false;
@@ -106,6 +114,33 @@ public class TagsMod
         saveConfigs();
     }
 
+    @SideOnly(Side.CLIENT)
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event)
+    {
+        MinecraftForge.EVENT_BUS.register(instance);
+        FMLCommonHandler.instance().bus().register(instance);
+
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Mod.EventHandler
+    public void postInit(FMLPostInitializationEvent event)
+    {
+        ClientCommandHandler handler = ClientCommandHandler.instance;
+        handler.registerCommand(new AddCommand());
+        handler.registerCommand(new RemoveCommand());
+        handler.registerCommand(new ListCommand());
+        handler.registerCommand(new TagCommand());
+        handler.registerCommand(new IgnoreCommand());
+        handler.registerCommand(new UnignoreCommand());
+        handler.registerCommand(new ReloadCommand());
+        handler.registerCommand(new ParticlesCommand());
+        handler.registerCommand(new DisableCommand());
+        handler.registerCommand(new EnableCommand());
+        handler.registerCommand(new PrintCommand());
+    }
+
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
     public void renderTick(TickEvent.RenderTickEvent event)
@@ -144,6 +179,25 @@ public class TagsMod
         if(tags.get(event.username, null) != null)
         {
             event.displayname = parseTag(tags.get(event.username, null)[0]) + " " + event.username;
+        }
+    }
+
+    /* Needs forge 1355+ */
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void renderPlayerPre(RenderPlayerEvent.Pre event)
+    {
+        if(timeLeft == 0) return;
+        String playername = event.entityPlayer.getName();
+        if(!notIgnoredPlayers.contains(playername) && !Minecraft.getMinecraft().thePlayer.getName().equals(playername))
+        {
+            event.setCanceled(true);
+            return;
+        }
+        if(System.currentTimeMillis() >= timeLeft)
+        {
+            timeLeft = 0;
+            notIgnoredPlayers = new CopyOnWriteArrayList<>();
         }
     }
 
@@ -341,31 +395,6 @@ public class TagsMod
             }
         }
         return new String(b);
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent event)
-    {
-        MinecraftForge.EVENT_BUS.register(instance);
-        FMLCommonHandler.instance().bus().register(instance);
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent event)
-    {
-        ClientCommandHandler handler = ClientCommandHandler.instance;
-        handler.registerCommand(new AddCommand());
-        handler.registerCommand(new RemoveCommand());
-        handler.registerCommand(new ListCommand());
-        handler.registerCommand(new TagCommand());
-        handler.registerCommand(new IgnoreCommand());
-        handler.registerCommand(new UnignoreCommand());
-        handler.registerCommand(new ReloadCommand());
-        handler.registerCommand(new ParticlesCommand());
-        handler.registerCommand(new DisableCommand());
-        handler.registerCommand(new EnableCommand());
     }
 
     @SideOnly(Side.CLIENT)

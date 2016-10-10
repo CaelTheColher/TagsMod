@@ -14,18 +14,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Created by Natan on 29/09/2016.
- */
 public class ParticlesCommand implements ICommand
 {
-    static final ArrayList<String> PARTICLES = new ArrayList<String>()
-    {
-        {
-            for(EnumParticleTypes type : EnumParticleTypes.values())
-                add(type.toString());
-        }
-    };
+    private static final ArrayList<String> PARTICLES = new ArrayList<String>() {{
+        for(EnumParticleTypes type : EnumParticleTypes.values()) add(type.toString());
+    }};
 
     final List<String> aliases = new ArrayList<>();
 
