@@ -19,5 +19,32 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="luaj (2)" level="application" />
+    <orderEntry type="module-library">
+      <library name="guava">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../guava-19.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="gson">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../gson-2.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="mojang_authlib">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../authlib-1.5.22.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

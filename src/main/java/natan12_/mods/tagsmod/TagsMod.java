@@ -1,5 +1,6 @@
 package natan12_.mods.tagsmod;
 
+import com.jadarstudios.developercapes.DevCapes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
@@ -47,6 +48,7 @@ public class TagsMod
     public static final String MODNAME = "Tags Mod";
     public static final String MODID = "tagsmod";
     public static final String GUI_FACTORY = "natan12_.mods.tagsmod.ConfigGUI";
+    public static final String CAPES_URL = "https://raw.githubusercontent.com/UmModderQualquer/TagsMod/master/capes/capes.json";
 
     @Mod.Instance(MODID)
     public static TagsMod instance;
@@ -120,7 +122,7 @@ public class TagsMod
     {
         MinecraftForge.EVENT_BUS.register(instance);
         FMLCommonHandler.instance().bus().register(instance);
-
+        DevCapes.getInstance().registerConfig(CAPES_URL);
     }
 
     @SideOnly(Side.CLIENT)
