@@ -72,6 +72,7 @@ public class TagsMod
             put("natan12_", EnumParticleTypes.REDSTONE);
             put("natan12_IntelliJ", EnumParticleTypes.REDSTONE);
             put("IlyBr", EnumParticleTypes.SMOKE_NORMAL);
+            put("Cael", EnumParticleTypes.ENCHANTMENT_TABLE);
         }
     };
     public static final HashMap<String, String> DEFAULT_TAGS = new HashMap<String, String>()
@@ -83,6 +84,7 @@ public class TagsMod
             put("lucaszainko", "&c&kHHH&r&aVIP&c&kHHH&r");
             put("spootnd", "&2&kaoa&a&6D&a&3o&a&5i&a&1d&a&9a&7&ao&2&kaoa&a&3");
             put("pedrojamur", "&4UmPigmeuAmigo&r");
+            put("Cael", "&d&kA&5Lua Queen&d&kA&r&3");
         }
     };
     public static final Random random = new Random(System.currentTimeMillis());
