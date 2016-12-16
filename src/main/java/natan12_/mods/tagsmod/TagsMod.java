@@ -45,7 +45,7 @@ public class TagsMod
     public static final String MODVERSION = "2.4";
     public static final String MODNAME = "Tags Mod";
     public static final String MODID = "tagsmod";
-    public static final String GUI_FACTORY = "natan12_.mods.tagsmod.ConfigGUI" ;
+    public static final String GUI_FACTORY = "natan12_.mods.tagsmod.ConfigGUI";
     public static final String CAPES_URL = "https://raw.githubusercontent.com/UmModderQualquer/TagsMod/master/capes/capes.json";
 
     @Mod.Instance(MODID)
