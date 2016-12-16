@@ -1,26 +1,22 @@
 package natan12_.mods.tagsmod;
 
-import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.LuaTable;
+import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class ConfigLua
 {
-    HashMap<String, String> map = new HashMap<String, String>();
-    File config;
+    private HashMap<String, String> map = new HashMap<>();
+    private File config;
 
     public ConfigLua(File configfile, String filename)
     {
-        if(configfile == null || filename == null) throw new RuntimeException(new IllegalArgumentException("ConfigLua: either configfile or filename are null"));
+        if(configfile == null || filename == null) throw new IllegalArgumentException("ConfigLua: either configfile or filename are null");
         config = new File(configfile.getParentFile(), filename);
         if(!config.exists())
         {
@@ -30,7 +26,7 @@ public class ConfigLua
                     save();
             }catch(Exception e)
             {
-                System.err.println("[TagsMod/ConfigLua] Error creating server commands file");
+                System.err.println("[TagsMod/ConfigLua] Error creating file");
                 e.printStackTrace();
             }
         }

@@ -1,29 +1,40 @@
-package natan12_.mods.tagsmod;
+package natan12_.mods.tagsmod.commands;
 
+import natan12_.mods.tagsmod.TagsMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.EnumParticleTypes;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class TagCommand implements ICommand
+public class ParticlesCommand extends CommandBase
 {
-    private static final List<String> aliases = new ArrayList<String>(){{add("ac_tag");}};
+    private static final ArrayList<String> PARTICLES = new ArrayList<String>() {{
+        for(EnumParticleTypes type : EnumParticleTypes.values()) add(type.toString());
+    }};
+
+    final List<String> aliases = new ArrayList<>();
+
+    public ParticlesCommand()
+    {
+        aliases.add("ac_particles");
+    }
 
     @Override
     public String getName() {
-        return "autocommand_tag";
+        return "autocommand_particles";
     }
 
     @Override
     public String getCommandUsage(ICommandSender iCommandSender) {
-        return "/ac_tag <set|remove> <player name> <tag (only for 'set')>";
+        return "/ac_particles <set|remove> <nick> <vanilla particle effect (only for 'set')>";
     }
 
     @Override
@@ -34,38 +45,33 @@ public class TagCommand implements ICommand
     @Override
     public void execute(ICommandSender sender, String[] args) throws CommandException
     {
-        if(!TagsMod.overrideChat)
-        {
-            ChatComponentText text = new ChatComponentText("Chat overriding is disabled in the config");
-            text.getChatStyle().setColor(EnumChatFormatting.DARK_RED);
-            sender.addChatMessage(text);
-            return;
-        }
-        if(args == null || args.length < 2)
+        if(args.length < 2)
         {
             ChatComponentText text = new ChatComponentText("Invalid usage\nUsage: " + getCommandUsage(sender));
             text.getChatStyle().setColor(EnumChatFormatting.DARK_RED);
             sender.addChatMessage(text);
             return;
         }
-        String option = args[0].toLowerCase();
-        String nick = args[1];
-        if(option.equals("remove"))
+        String subcommand = args[0];
+        String playername = args[1];
+
+        if(subcommand.equals("remove"))
         {
-            TagsMod.tags.remove(nick);
-            TagsMod.tags.save();
+            TagsMod.particles.remove(playername);
+            TagsMod.particles.save();
             ChatComponentText text = new ChatComponentText("Removido com sucesso");
             text.getChatStyle().setColor(EnumChatFormatting.GREEN);
             sender.addChatMessage(text);
             return;
         }
-        if(!option.equals("set"))
+        else if(!subcommand.equals("set"))
         {
             ChatComponentText text = new ChatComponentText("Invalid usage\nUsage: " + getCommandUsage(sender));
             text.getChatStyle().setColor(EnumChatFormatting.DARK_RED);
             sender.addChatMessage(text);
             return;
         }
+
         if(args.length < 3)
         {
             ChatComponentText text = new ChatComponentText("Invalid usage\nUsage: " + getCommandUsage(sender));
@@ -73,37 +79,28 @@ public class TagCommand implements ICommand
             sender.addChatMessage(text);
             return;
         }
-        switch(nick)
+
+        String particlename = args[2];
+
+        boolean valid;
+        try
         {
-            case "natan12_":
-            case "natan12_IntelliJ":
-            case "roneyq123":
-            case "BrubsCraft":
-            case "lucaszainko":
-            case "IlyBr":
-            case "spootnd":
-            case "pedrojamur":
-            case "RumpeSan":
-                if(sender.getName().equals(nick))
-                {
-                    break;
-                }
-                ChatComponentText text = new ChatComponentText("A tag desse player n" + '\u00e3' + "o pode ser mudada");
-                text.getChatStyle().setBold(true).setItalic(true).setColor(EnumChatFormatting.DARK_RED);
-                sender.addChatMessage(text);
-                return;
+            EnumParticleTypes.valueOf(particlename);
+            valid = true;
         }
-        StringBuilder sb = new StringBuilder();
-        for(int i = 2; i < args.length; i++)
+        catch(Exception e) {valid = false;}
+
+        if(!valid)
         {
-            sb.append(args[i]);
-            if(i < args.length-1)sb.append(" ");
+            ChatComponentText text = new ChatComponentText("Invalid particle");
+            text.getChatStyle().setColor(EnumChatFormatting.DARK_RED);
+            sender.addChatMessage(text);
+            return;
         }
-        String tag = sb.toString();
-        TagsMod.tags.set(nick, tag);
-        TagsMod.tags.save();
+
+        TagsMod.particles.set(playername, particlename);
+        TagsMod.particles.save();
         ChatComponentText text = new ChatComponentText("Adicionado com sucesso");
-        System.out.println("[TagsMod/Tags] " + nick + " -> " + tag);
         text.getChatStyle().setColor(EnumChatFormatting.GREEN);
         sender.addChatMessage(text);
     }
@@ -119,16 +116,15 @@ public class TagCommand implements ICommand
     }
 
     @Override
-    public List addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos blockPos) {
+    public List addTabCompletionOptions(ICommandSender sender, final String[] args, BlockPos blockPos) {
         if(args == null) return null;
         if(args.length == 1)
         {
-            final String typed = args[0].toLowerCase();
             return new ArrayList<String>()
             {
                 {
-                    if("set".startsWith(typed)) add("set");
-                    if("remove".startsWith(typed)) add("remove");
+                    if("set".startsWith(args[0]))add("set");
+                    if("remove".startsWith(args[0]))add("remove");
                 }
             };
         }
@@ -139,7 +135,7 @@ public class TagCommand implements ICommand
             String typed = args[1];
             if(subcommand.equals("remove"))
             {
-                for(String s : TagsMod.tags.getKeys())
+                for(String s : TagsMod.particles.getKeys())
                 {
                     if(s.toLowerCase().startsWith(typed.toLowerCase())) ret.add(s);
                 }
@@ -155,16 +151,18 @@ public class TagCommand implements ICommand
             }
             return ret;
         }
+        if(args.length == 3)
+        {
+            String typed = args[2];
+            List<String> ret = new ArrayList<>();
+            Iterator<String> it = PARTICLES.iterator();
+            while(it.hasNext())
+            {
+                String next = it.next();
+                if(next.startsWith(typed)) ret.add(next);
+            }
+            return ret;
+        }
         return null;
-    }
-
-    @Override
-    public boolean isUsernameIndex(String[] strings, int i) {
-        return false;
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        return 0;
     }
 }

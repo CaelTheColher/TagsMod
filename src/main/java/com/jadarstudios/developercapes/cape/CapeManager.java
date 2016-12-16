@@ -11,8 +11,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 
-import com.jadarstudios.developercapes.DevCapes;
-
 /**
  * This manages all of the capes, be nice to it or you won't get one!
  *
@@ -56,6 +54,8 @@ public class CapeManager {
 		ICape cape = null;
 		if (object instanceof String || object instanceof URL)
 			cape = parse(name, object.toString());
+		else
+			System.err.format("Cape, %s, could not be parsed because it is not in an accepted format!\n", object);
 		return cape;
 	}
 
@@ -65,6 +65,7 @@ public class CapeManager {
 		try {
 			cape = new StaticCape(name, new URL(url));
 		} catch (MalformedURLException e) {
+			System.err.format("Are you crazy?? \"%s\" is not a valid URL!", url);
 			e.printStackTrace();
 		}
 		return cape;

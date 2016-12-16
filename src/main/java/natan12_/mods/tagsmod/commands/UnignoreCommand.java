@@ -1,10 +1,8 @@
-package natan12_.mods.tagsmod;
+package natan12_.mods.tagsmod.commands;
 
-import net.minecraft.client.Minecraft;
+import natan12_.mods.tagsmod.TagsMod;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
@@ -12,22 +10,22 @@ import net.minecraft.util.EnumChatFormatting;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IgnoreCommand implements ICommand
+public class UnignoreCommand extends CommandBase
 {
-    private static final List<String> aliases = new ArrayList<String>(){{add("ac_ignore");}};
+    private static final List<String> aliases = new ArrayList<String>(){{add("ac_unignore");}};
 
     @Override
     public String getName() {
-        return "autocommand_ignore";
+        return "autocommand_unignore";
     }
 
     @Override
     public String getCommandUsage(ICommandSender iCommandSender) {
-        return "/ac_ignore <player> (the messages the player sents are still printed to the log)";
+        return "/ac_unignore <player>";
     }
 
     @Override
-    public List getAliases() {
+    public List<String> getAliases() {
         return aliases;
     }
 
@@ -41,16 +39,16 @@ public class IgnoreCommand implements ICommand
             return;
         }
         String playername = args[0];
-        if(playername.equals(Minecraft.getMinecraft().thePlayer.getName()))
+        if(!TagsMod.ignored.containsKey(playername))
         {
-            ChatComponentText text = new ChatComponentText("You can't ignore yourself!");
+            ChatComponentText text = new ChatComponentText("Player is not ignored");
             text.getChatStyle().setColor(EnumChatFormatting.DARK_RED);
             sender.addChatMessage(text);
             return;
         }
-        TagsMod.ignored.set(playername, "true");
+        TagsMod.ignored.remove(playername);
         TagsMod.ignored.save();
-        ChatComponentText text = new ChatComponentText("Player '" + playername + "' blocked");
+        ChatComponentText text = new ChatComponentText("Player '" + playername + "' unblocked");
         text.getChatStyle().setColor(EnumChatFormatting.GREEN);
         sender.addChatMessage(text);
     }
@@ -66,32 +64,19 @@ public class IgnoreCommand implements ICommand
     }
 
     @Override
-    public List addTabCompletionOptions(ICommandSender iCommandSender, String[] args, BlockPos blockPos) {
+    public List<String> addTabCompletionOptions(ICommandSender iCommandSender, String[] args, BlockPos blockPos) {
         if(args == null) return null;
         if(args.length == 1)
         {
             List<String> ret = new ArrayList<>();
-            String typed = args[0].toLowerCase();
-            for(Object o : Minecraft.getMinecraft().theWorld.playerEntities)
+            for(String s : TagsMod.ignored.getKeys())
             {
-                if(!(o instanceof EntityPlayer)) continue;
-                EntityPlayer player = (EntityPlayer) o;
-                String playername = player.getName();
-                if(!playername.toLowerCase().startsWith(typed)) continue;
-                ret.add(playername);
+                String typed = args[0];
+                if(typed.length() > 0 && !s.substring(0, typed.length()).equalsIgnoreCase(typed)) continue;
+                ret.add(s);
             }
             return ret;
         }
         return null;
-    }
-
-    @Override
-    public boolean isUsernameIndex(String[] strings, int i) {
-        return false;
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        return 0;
     }
 }

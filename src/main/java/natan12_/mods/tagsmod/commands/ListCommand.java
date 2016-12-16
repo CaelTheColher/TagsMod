@@ -1,7 +1,7 @@
-package natan12_.mods.tagsmod;
+package natan12_.mods.tagsmod.commands;
 
+import natan12_.mods.tagsmod.TagsMod;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
@@ -9,7 +9,7 @@ import net.minecraft.util.ChatComponentText;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListCommand implements ICommand
+public class ListCommand extends CommandBase
 {
     private static final List<String> aliases = new ArrayList<String>(){{add("ac_list");}};
 
@@ -46,12 +46,6 @@ public class ListCommand implements ICommand
     public String getCommandUsage(ICommandSender iCommandSender)
     {
         return "autocommand_list";
-    }
-
-    @Override
-    public int compareTo(Object o)
-    {
-        return 0;
     }
 
     @Override

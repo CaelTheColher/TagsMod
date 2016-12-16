@@ -1,8 +1,8 @@
-package natan12_.mods.tagsmod;
+package natan12_.mods.tagsmod.commands;
 
+import natan12_.mods.tagsmod.TagsMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.util.BlockPos;
@@ -12,14 +12,14 @@ import net.minecraft.util.EnumChatFormatting;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddCommand implements ICommand
+public class RemoveCommand extends CommandBase
 {
-    private static final List<String> aliases = new ArrayList<String>(){{add("ac_add");}};
+    private static final List<String> aliases = new ArrayList<String>(){{add("ac_remove");}};
 
     @Override
     public String getName()
     {
-        return "autocommand_add";
+        return "autocommand_remove";
     }
 
     @Override
@@ -38,20 +38,17 @@ public class AddCommand implements ICommand
                 sender.addChatMessage(new ChatComponentText("Client-side only"));
                 return;
             }
-            if(args == null || args.length < 2)
+            if(args == null || args.length < 1)
             {
-                ChatComponentText text = new ChatComponentText("Invalid usage\n Usage: " + getCommandUsage(sender));
+                ChatComponentText text = new ChatComponentText("Invalid usage\nUsage: " + getCommandUsage(sender));
                 text.getChatStyle().setColor(EnumChatFormatting.DARK_RED);
                 sender.addChatMessage(text);
                 return;
             }
             String IP = args[0];
-            String cmd = "";
-            for(int i = 1; i < args.length; i++)
-                cmd += args[i] + " ";
-            TagsMod.servers.set(IP, cmd);
+            TagsMod.servers.remove(IP);
             TagsMod.servers.save();
-            ChatComponentText text = new ChatComponentText("[Command Sender] Adicionado com sucesso");
+            ChatComponentText text = new ChatComponentText("[Command Sender] Removido com sucesso");
             text.getChatStyle().setColor(EnumChatFormatting.GREEN);
             sender.addChatMessage(text);
         }
@@ -66,29 +63,27 @@ public class AddCommand implements ICommand
     }
 
     @Override
-    public boolean isUsernameIndex(String[] strings, int i)
-    {
-        return false;
-    }
-
-    @Override
     public String getCommandUsage(ICommandSender iCommandSender)
     {
-        return "autocommand_add <IP> <';' separated commands>";
+        return "autocommand_remove <IP>";
     }
 
     @Override
-    public int compareTo(Object o)
+    public List addTabCompletionOptions(ICommandSender iCommandSender, String[] args, BlockPos blockPos)
     {
-        return 0;
-    }
-
-    @Override
-    public List addTabCompletionOptions(ICommandSender iCommandSender, String[] strings, BlockPos blockPos)
-    {
-        if(strings.length > 1) return null;
+        if(args.length > 1) return null;
         ArrayList<String> list = new ArrayList<>();
-        list.add(Minecraft.getMinecraft().getCurrentServerData().serverIP);
+        if(args.length == 1)
+        {
+            String typed = args[0].toLowerCase();
+            for(String s : TagsMod.servers.getKeys())
+            {
+                if(s.toLowerCase().startsWith(typed)) list.add(s);
+            }
+        }
+        else
+            if(Minecraft.getMinecraft().getCurrentServerData() != null && Minecraft.getMinecraft().getCurrentServerData().serverIP != null)
+                list.add(Minecraft.getMinecraft().getCurrentServerData().serverIP);
         return list;
     }
 

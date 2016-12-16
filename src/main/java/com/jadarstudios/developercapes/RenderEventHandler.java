@@ -9,10 +9,8 @@ package com.jadarstudios.developercapes;
 import com.jadarstudios.developercapes.cape.ICape;
 import com.jadarstudios.developercapes.user.User;
 import com.jadarstudios.developercapes.user.UserManager;
-
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
@@ -25,7 +23,7 @@ public class RenderEventHandler {
 	// mmdanggg2: renderPlayerEvent seems to be getting depreciated so this will
 	// do for now.
 	@SubscribeEvent
-	public void renderPlayer (RenderPlayerEvent.Pre event) {
+	public void renderPlayer (RenderLivingEvent.Pre event) {
 		if (event.entity instanceof AbstractClientPlayer) {
 			AbstractClientPlayer player = (AbstractClientPlayer) event.entity;
 

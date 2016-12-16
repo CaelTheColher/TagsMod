@@ -1,8 +1,7 @@
-package natan12_.mods.tagsmod;
+package natan12_.mods.tagsmod.commands;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
@@ -10,18 +9,18 @@ import net.minecraft.util.BlockPos;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EnableCommand implements ICommand
+public class ReloadCommand extends CommandBase
 {
-    private static final List<String> aliases = new ArrayList<String>(){{add("ac_enable");}};
+    final List<String> aliases = new ArrayList<String>(){{add("ac_reload");}};
 
     @Override
     public String getName() {
-        return "autocommand_enable";
+        return "autocommand_reload";
     }
 
     @Override
     public String getCommandUsage(ICommandSender iCommandSender) {
-        return "/ac_enable";
+        return "/ac_reload";
     }
 
     @Override
@@ -30,23 +29,21 @@ public class EnableCommand implements ICommand
     }
 
     @Override
-    public void execute(ICommandSender iCommandSender, String[] strings) throws CommandException
+    public void execute(ICommandSender sender, String[] args) throws CommandException
     {
-        TagsMod.saveConfigs();
-
         for(Object o : Minecraft.getMinecraft().theWorld.playerEntities)
         {
-            if(o == null) return;
+            if(o == null || !(o instanceof EntityPlayer)) continue;
             ((EntityPlayer) o).refreshDisplayName();
         }
     }
 
     @Override
-    public boolean canCommandSenderUse(ICommandSender iCommandSender) {
+    public boolean canCommandSenderUse(ICommandSender sender) {
         boolean use;
         try
         {
-            use = iCommandSender.getEntityWorld().isRemote;
+            use = sender.getEntityWorld().isRemote;
         }catch(Exception e){use = false;}
         return use;
     }
@@ -54,15 +51,5 @@ public class EnableCommand implements ICommand
     @Override
     public List addTabCompletionOptions(ICommandSender iCommandSender, String[] strings, BlockPos blockPos) {
         return null;
-    }
-
-    @Override
-    public boolean isUsernameIndex(String[] strings, int i) {
-        return false;
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        return 0;
     }
 }

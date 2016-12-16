@@ -1,16 +1,13 @@
 package natan12_.mods.tagsmod;
 
 import com.jadarstudios.developercapes.DevCapes;
+import natan12_.mods.tagsmod.commands.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.*;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
@@ -20,7 +17,6 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -32,6 +28,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -44,10 +42,10 @@ import static natan12_.mods.tagsmod.TagsMod.*;
         clientSideOnly = true, canBeDeactivated = true)
 public class TagsMod
 {
-    public static final String MODVERSION = "2.1";
+    public static final String MODVERSION = "2.4";
     public static final String MODNAME = "Tags Mod";
     public static final String MODID = "tagsmod";
-    public static final String GUI_FACTORY = "natan12_.mods.tagsmod.ConfigGUI";
+    public static final String GUI_FACTORY = "natan12_.mods.tagsmod.ConfigGUI" ;
     public static final String CAPES_URL = "https://raw.githubusercontent.com/UmModderQualquer/TagsMod/master/capes/capes.json";
 
     @Mod.Instance(MODID)
@@ -57,6 +55,7 @@ public class TagsMod
     public static ConfigLua tags;
     public static ConfigLua particles;
     public static ConfigLua ignored;
+    public static ConfigLua ignoredMsgs;
     public static CopyOnWriteArrayList<String> notIgnoredPlayers = new CopyOnWriteArrayList<>();
     public static long timeLeft = 0;
     public static boolean useFormatting = false;
@@ -112,6 +111,9 @@ public class TagsMod
         tags = new ConfigLua(cfgFile, "tags.luatable");
         ignored = new ConfigLua(cfgFile, "ignored.luatable");
         particles = new ConfigLua(cfgFile, "particles.luatable");
+        File ignoredDir = new File(cfgFile.getParentFile().getParentFile(), "ignored_messages");
+        if(!ignoredDir.exists()) ignoredDir.mkdirs();
+        ignoredMsgs = new ConfigLua(new File(ignoredDir, "fake file"), "ignored_messages - " + new SimpleDateFormat("yyyyy-MM-dd HH-mm-ss").format(new Date()) + ".luatable");
 
         saveConfigs();
     }
@@ -121,7 +123,6 @@ public class TagsMod
     public void init(FMLInitializationEvent event)
     {
         MinecraftForge.EVENT_BUS.register(instance);
-        FMLCommonHandler.instance().bus().register(instance);
         DevCapes.getInstance().registerConfig(CAPES_URL);
     }
 
@@ -141,6 +142,7 @@ public class TagsMod
         handler.registerCommand(new DisableCommand());
         handler.registerCommand(new EnableCommand());
         handler.registerCommand(new PrintCommand());
+        handler.registerCommand(new ViewIgnoredCommand());
     }
 
     @SubscribeEvent
@@ -159,7 +161,6 @@ public class TagsMod
             event.displayname = event.username;
             return;
         }
-        System.out.println(event.username);
         if(event.username.equals("roneyq123") || event.username.equals("BrubsCraft"))
         {
             switch(event.username)
@@ -190,16 +191,15 @@ public class TagsMod
     public void renderPlayerPre(RenderPlayerEvent.Pre event)
     {
         if(timeLeft == 0) return;
-        String playername = event.entityPlayer.getName();
-        if(!notIgnoredPlayers.contains(playername) && !Minecraft.getMinecraft().thePlayer.getName().equals(playername))
-        {
-            event.setCanceled(true);
-            return;
-        }
         if(System.currentTimeMillis() >= timeLeft)
         {
             timeLeft = 0;
             notIgnoredPlayers = new CopyOnWriteArrayList<>();
+        }
+        String playername = event.entityPlayer.getName();
+        if(!notIgnoredPlayers.contains(playername) && !Minecraft.getMinecraft().thePlayer.getName().equals(playername))
+        {
+            event.setCanceled(true);
         }
     }
 
@@ -211,8 +211,6 @@ public class TagsMod
         IChatComponent message = event.message;
         String formatted = message.getFormattedText();
         String unformatted = message.getUnformattedText();
-        System.out.println("[TagsMod/Chat] Formatted: " + formatted);
-        System.out.println("[TagsMod/Chat] Unformatted: " + unformatted);
         int first = formatted.indexOf(":");
         int unformattedFirst = unformatted.indexOf(":");
         event.setCanceled(true);
@@ -225,7 +223,12 @@ public class TagsMod
             {
                 if(ignored.get(playername, null)[0].equals("true"))
                 {
-                    System.out.println("[TagsMod/Ignore] Blocked message from '" + playername + "': " + unformatted);
+                    String index = ignoredMsgs.getKeys().size()+1+"";
+                    ignoredMsgs.set(index, unformatted);
+                    toSend.appendText("[Ignored message, click here to see message]");
+                    toSend.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ac_viewignored " + index))
+                            .setColor(EnumChatFormatting.GREEN);
+                    Minecraft.getMinecraft().thePlayer.addChatMessage(toSend);
                     return;
                 }
             }
@@ -418,6 +421,17 @@ public class TagsMod
             System.err.println("[TagsMod/onConnectedToServerEvent] " + th.getMessage());
             th.printStackTrace();
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onDisconnectedFromServerEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
+    {
+        servers.save();
+        tags.save();
+        ignored.save();
+        particles.save();
+        ignoredMsgs.save();
     }
 
     @SideOnly(Side.CLIENT)

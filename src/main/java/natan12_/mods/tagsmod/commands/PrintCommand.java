@@ -1,17 +1,18 @@
-package natan12_.mods.tagsmod;
+package natan12_.mods.tagsmod.commands;
 
+import natan12_.mods.tagsmod.TagsMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class PrintCommand implements ICommand
+public class PrintCommand extends CommandBase
 {
     private static final List<String> aliases = new ArrayList<String>() {{add("ac_print");}};
 
@@ -34,7 +35,29 @@ public class PrintCommand implements ICommand
     @Override
     public void execute(ICommandSender sender, String[] args) throws CommandException
     {
-        TagsMod.notIgnoredPlayers.addAll(Arrays.asList(args));
+        if(args == null || args.length < 1)
+        {
+            ChatComponentText text = new ChatComponentText("Invalid usage\nUsage: " + getCommandUsage(sender));
+            text.getChatStyle().setColor(EnumChatFormatting.DARK_RED);
+            sender.addChatMessage(text);
+            return;
+        }
+        boolean valid = false;
+        for(String s : args)
+        {
+            if(Minecraft.getMinecraft().theWorld.getPlayerEntityByName(s) != null)
+            {
+                valid = true;
+                TagsMod.notIgnoredPlayers.add(s);
+            }
+        }
+        if(!valid)
+        {
+            ChatComponentText text = new ChatComponentText("At least one of the players selected must be online and near you");
+            text.getChatStyle().setColor(EnumChatFormatting.DARK_RED);
+            sender.addChatMessage(text);
+            return;
+        }
         TagsMod.timeLeft = System.currentTimeMillis() + 10000;
     }
 
@@ -62,15 +85,5 @@ public class PrintCommand implements ICommand
             ret.add(playername);
         }
         return ret;
-    }
-
-    @Override
-    public boolean isUsernameIndex(String[] strings, int i) {
-        return false;
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        return 0;
     }
 }

@@ -6,13 +6,12 @@
  */
 package com.jadarstudios.developercapes.user;
 
+import com.jadarstudios.developercapes.cape.CapeManager;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.jadarstudios.developercapes.DevCapes;
-import com.jadarstudios.developercapes.cape.CapeManager;
 
 /**
  * All groups have to be managed
@@ -67,6 +66,7 @@ public class GroupManager {
 		Object capeUrlObj = data.get("capeUrl");
 
 		if (!(usersObj instanceof ArrayList) || !(capeUrlObj instanceof String)) {
+			System.out.format("[DevCapes] Group %s could not be parsed because it either is invalid or missing elements.\n", name);
 			return null;
 		}
 

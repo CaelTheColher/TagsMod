@@ -1,8 +1,8 @@
-package natan12_.mods.tagsmod;
+package natan12_.mods.tagsmod.commands;
 
+import natan12_.mods.tagsmod.TagsMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
@@ -10,18 +10,18 @@ import net.minecraft.util.BlockPos;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DisableCommand implements ICommand
+public class EnableCommand extends CommandBase
 {
-    private static final List<String> aliases = new ArrayList<String>(){{add("ac_disable");}};
+    private static final List<String> aliases = new ArrayList<String>(){{add("ac_enable");}};
 
     @Override
     public String getName() {
-        return "autocommand_disable";
+        return "autocommand_enable";
     }
 
     @Override
     public String getCommandUsage(ICommandSender iCommandSender) {
-        return "/ac_disable";
+        return "/ac_enable";
     }
 
     @Override
@@ -32,9 +32,7 @@ public class DisableCommand implements ICommand
     @Override
     public void execute(ICommandSender iCommandSender, String[] strings) throws CommandException
     {
-        TagsMod.overrideChat = false;
-        TagsMod.allowParticles = false;
-        TagsMod.useFormatting = false;
+        TagsMod.saveConfigs();
 
         for(Object o : Minecraft.getMinecraft().theWorld.playerEntities)
         {
@@ -56,15 +54,5 @@ public class DisableCommand implements ICommand
     @Override
     public List addTabCompletionOptions(ICommandSender iCommandSender, String[] strings, BlockPos blockPos) {
         return null;
-    }
-
-    @Override
-    public boolean isUsernameIndex(String[] strings, int i) {
-        return false;
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        return 0;
     }
 }
